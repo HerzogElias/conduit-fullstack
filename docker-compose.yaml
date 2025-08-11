@@ -7,21 +7,17 @@ services:
       - "8000:8000"
     volumes:
       - backend-code:/app
-    command: python manage.py runserver 0.0.0.0:8000
     restart: always
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
     ports:
-      - "8282:4200"
+      - "8282:80"
     volumes:
       - frontend-code:/app
       - frontend-node-modules:/app/node_modules
-    command: npm start
     restart: always
-
-
 
 volumes:
   frontend-code:

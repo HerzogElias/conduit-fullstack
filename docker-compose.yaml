@@ -4,11 +4,13 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     env_file:
-    - ./backend/example.env
+    - ./backend/.env
     ports:
       - "8000:8000"
     volumes:
       - backend-code:/app
+      - static-data:/var/www/localhost/static/
+
     restart: always
   frontend:
     build:
@@ -25,3 +27,5 @@ volumes:
   frontend-code:
   frontend-node-modules:
   backend-code:
+  static-data:
+  

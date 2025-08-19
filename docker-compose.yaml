@@ -9,8 +9,7 @@ services:
       - "8000:8000"
     volumes:
       - backend-code:/app
-      - static-data:/var/www/127.0.0.1/static/
-
+      - static-data:/var/www/static/
     restart: always
   frontend:
     build:

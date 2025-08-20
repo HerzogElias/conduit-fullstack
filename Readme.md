@@ -9,7 +9,6 @@
    - [Stop Docker Container](#Stop-Docker-Container)
    - [Delete Docker Container](#Delete-Docker-Container)
 
-
 ## Introduction
 This is a Readme Description of our Conduit Project.The Conduit is a Clone of <a href=https://medium.com/>Medium.com<a>
 
@@ -23,18 +22,33 @@ This is a Readme Description of our Conduit Project.The Conduit is a Clone of <a
 git clone git@github.com:HerzogElias/conduit-fullstack.git
 ```
 
-2. Clone all Submoudles 
+2. Clone all Submodules 
 ```bash
 git submodule update --init --recursive
-
 ```
 
-2. Navigate to the Correct Direcotry: 
+3. Navigate to the Correct Direcotry: 
 ```bash
 cd conduit-fullstack
 ```
 
-3. Start Docker Compose 
+4. Copy your Backend Environement file.
+Naviagte: 
+```bash
+cd backend
+```
+
+Copy the File: 
+```bash
+cp example.env .env
+```
+
+Navigate Back to Root: 
+```bash
+cd ..
+```
+
+5. Start Docker Compose 
 ```bash
 docker compose up --build
 ```

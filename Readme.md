@@ -22,14 +22,15 @@ This is a Readme Description of our Conduit Project.The Conduit is a Clone of <a
 git clone git@github.com:HerzogElias/conduit-fullstack.git
 ```
 
-2. Clone all Submodules 
-```bash
-git submodule update --init --recursive
-```
 
-3. Navigate to the Correct Direcotry: 
+2. Navigate to the Correct Direcotry: 
 ```bash
 cd conduit-fullstack
+```
+
+3. Clone all Submodules 
+```bash
+git submodule update --init --recursive
 ```
 
 4. Copy your Backend Environement file.

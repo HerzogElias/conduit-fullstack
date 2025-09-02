@@ -11,6 +11,8 @@ services:
       - backend-code:/app
       - static-data:/var/www/static/
     restart: always
+    depends_on:
+      - db 
   frontend:
     build:
       context: ./frontend
@@ -19,12 +21,10 @@ services:
       - "8282:80"
     volumes:
       - frontend-code:/app
-      - frontend-node-modules:/app/node_modules
     restart: always
 
 volumes:
   frontend-code:
-  frontend-node-modules:
   backend-code:
   static-data:
   

@@ -1,0 +1,30 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    env_file:
+    - ./backend/.env
+    ports:
+      - "8000:8000"
+    volumes:
+      - backend-code:/app
+      - static-data:/var/www/static/
+    restart: always
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "8282:80"
+    volumes:
+      - frontend-code:/app
+      - frontend-node-modules:/app/node_modules
+    restart: always
+
+volumes:
+  frontend-code:
+  frontend-node-modules:
+  backend-code:
+  static-data:
+  

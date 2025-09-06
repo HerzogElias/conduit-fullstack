@@ -22,3 +22,7 @@ jobs:
             cd ~/app
             docker compose pull       # optional: neue Images vom Registry ziehen
             docker compose up -d --build  # Build passiert auf dem Server
+
+      - name: Show key format
+        run: |
+          echo "${{ secrets.SERVER_SSH_KEY }}" | wc -l

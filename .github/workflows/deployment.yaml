@@ -19,5 +19,6 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
+            cd Conduit_Fullstack
             docker compose pull       # optional: neue Images vom Registry ziehen
             docker compose up -d --build  # Build passiert auf dem Server

@@ -1,41 +1,24 @@
-name: Deploy
+name: ci-deploy
 
 on:
   push:
-    branches:
-      - "main"
-  workflow_dispatch:
 
 jobs:
-  build-and-deploy:
+  docker:
     runs-on: ubuntu-latest
-
     steps:
-      # 1. Repository auschecken
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v3
 
-      # 2. Docker Images bauen (Frontend + Backend)
-      - name: Build Docker images
-        run: docker compose build
+      - name: Set up Docker
+        uses: docker/setup-docker@v3
 
-      # 3. Docker Images in TAR-Datei speichern
-      - name: Save Docker images to tar
+      - name: Build and export Docker images
         run: |
-          docker save frontend:latest backend:latest -o conduit-fullstack.tar
+          docker build -t frontend ./frontend
+          docker build -t backend ./backend
+          docker save frontend backend -o conduit-fullstack.tar
 
-      # 4. TAR-Datei auf Server kopieren
-      - name: Copy images to server via SCP
-        uses: appleboy/scp-action@v0.1.4
-        with:
-          host: ${{ secrets.SERVER_IP }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
-          port: ${{ secrets.SERVER_PORT }}
-          source: "conduit-fullstack.tar"
-          target: "/home/eherzog/conduit-fullstack/conduit-fullstack.tar"
-
-      # 5. Docker Images auf Server laden & deployen
       - name: Load Docker images and deploy on server
         uses: appleboy/ssh-action@v1.0.0
         with:
@@ -46,5 +29,4 @@ jobs:
           script: |
             cd /home/eherzog/conduit-fullstack
             docker load -i conduit-fullstack.tar
-            docker compose up -d
-
+            docker compose up -d --build

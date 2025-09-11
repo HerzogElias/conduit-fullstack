@@ -11,17 +11,33 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # 1. Repository auschecken
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      # 2. QEMU für Multi-Arch
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      # 3. Docker Buildx für Multi-Arch
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # 4. Docker Images bauen (Frontend + Backend)
       - name: Build Docker images
         run: |
-          docker compose build
+          docker buildx build \
+            --platform linux/amd64,linux/arm64 \
+            -t frontend:latest ./frontend \
+            -t backend:latest ./backend \
+            --load
 
+      # 5. Docker Images in TAR-Datei speichern
       - name: Save Docker images to tar
         run: |
           docker save frontend:latest backend:latest -o conduit-fullstack.tar
 
+      # 6. TAR-Datei auf Server kopieren
       - name: Copy images to server via SCP
         uses: appleboy/scp-action@v0.1.4
         with:
@@ -32,6 +48,7 @@ jobs:
           source: "conduit-fullstack.tar"
           target: "/home/eherzog/conduit-fullstack/conduit-fullstack.tar"
 
+      # 7. Docker Images auf Server laden & deployen
       - name: Load Docker images and deploy on server
         uses: appleboy/ssh-action@v1.0.0
         with:
@@ -43,4 +60,3 @@ jobs:
             cd /home/eherzog/conduit-fullstack
             docker load -i conduit-fullstack.tar
             docker compose up -d
-

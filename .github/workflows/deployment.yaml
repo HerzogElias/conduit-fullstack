@@ -2,7 +2,9 @@ name: ci
 
 on:
   push:
-workflow_dispatch:
+    branches:
+      - main
+  workflow_dispatch:
 
 jobs:
   docker:
@@ -47,13 +49,8 @@ jobs:
           key: ${{ secrets.SECRET_SSH_KEY }}
           port: ${{ secrets.PORT }}
           script: |
-            # Login zu GHCR auf der VM
             docker login ghcr.io -u ${{ github.repository_owner }} --password-stdin <<< ${{ secrets.GITHUB_TOKEN }}
-
-            # Zum Verzeichnis mit docker-compose.yml wechseln
             cd /pfad/zu/deinem/compose-verzeichnis
-
-            # Alte Container stoppen, neue Images ziehen, Container starten
             docker-compose down
             docker-compose pull
             docker-compose up -d

@@ -3,15 +3,36 @@ name: Deploy
 on:
   push:
     branches:
-      - "**"
+      - "main"
   workflow_dispatch:
 
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Deploy to server via SSH
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Build Docker image
+        run: |
+          docker build -t conduit-fullstack:latest .
+
+      - name: Save Docker image to tar
+        run: |
+          docker save conduit-fullstack:latest -o conduit-fullstack.tar
+
+      - name: Copy image to server via SCP
+        uses: appleboy/scp-action@v0.1.4
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          port: ${{ secrets.SERVER_PORT }}
+          source: "conduit-fullstack.tar"
+          target: "/home/eherzog/conduit-fullstack/conduit-fullstack.tar"
+
+      - name: Load Docker image and deploy on server
         uses: appleboy/ssh-action@v1.0.0
         with:
           host: ${{ secrets.SERVER_IP }}
@@ -20,5 +41,5 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
             cd /home/eherzog/conduit-fullstack
-            docker compose pull       # optional: neue Images vom Registry ziehen
-            docker compose up -d --build  # Build passiert auf dem Server
+            docker load -i conduit-fullstack.tar
+            docker compose up -d

@@ -2,7 +2,7 @@ services:
   backend:
     build:
       context: ./backend
-      dockerfile: Dockerfile
+      dockerfile: ./Dockerfile
     env_file:
     - ./backend/.env
     ports:
@@ -11,11 +11,10 @@ services:
       - backend-code:/app
       - static-data:/var/www/static/
     restart: always
-    
   frontend:
     build:
-      context: ./frontend
-      dockerfile: Dockerfile
+      context: ./fontend
+      dockerfile: ./Dockerfile
     ports:
       - "8282:80"
     volumes:

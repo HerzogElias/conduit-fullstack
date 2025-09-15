@@ -14,16 +14,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Copy Docker Compose File to VM via SCP Action
-      - name: Copy Docker Compose File to VM via SCP Action
-        uses: appleboy/scp-action@v1.0.0
-        with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }}
-          key: ${{ secrets.SECRET_SSH_KEY }}
-          port: ${{ secrets.PORT }}
-          source: "docker-compose.yml"
-          target: /home/eherzog/conduit-fullstack/
 
       # Remote Deployment via SSH + Docker Compose
       - name: Deploy to VM via SSH

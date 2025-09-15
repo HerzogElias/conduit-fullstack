@@ -16,7 +16,7 @@ jobs:
 
       # Copy Docker Compose File to VM via SCP Action
       - name: Copy Docker Compose File to VM via SCP Action
-        uses: appleboy/scp-action@v0.1.7
+        uses: appleboy/scp-action@v1.0.0
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}

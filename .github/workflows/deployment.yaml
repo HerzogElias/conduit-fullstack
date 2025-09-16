@@ -22,7 +22,7 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           port: ${{ secrets.SERVER_PORT }}
-          source: "./docker-compose"
+          source: "./docker-compose.yaml"
           target: "/home/eherzog/conduit-fullstack"
 
       # Remote Deployment via SSH + Docker Compose

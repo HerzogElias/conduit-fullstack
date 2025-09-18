@@ -14,8 +14,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # 📦 docker-compose Binary auf Server kopieren
-      - name: Copy docker-compose binary to server
+      # 📦 docker-compose File auf Server kopieren
+      - name: Copy docker-compose file to the Server
         uses: appleboy/scp-action@v1.0.0
         with:
           host: ${{ secrets.SERVER_IP }}
@@ -23,7 +23,7 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           port: ${{ secrets.SERVER_PORT }}
           source: "./docker-compose.yaml"
-          target: "/home/eherzog/conduit-fullstack"
+          target: "/tmp/conduit-compose.yaml"
 
       # Remote Deployment via SSH + Docker Compose
       - name: Deploy to VM via SSH
@@ -35,8 +35,7 @@ jobs:
           port: ${{ secrets.SERVER_PORT }}
           script: |
             docker login ghcr.io -u ${{ github.repository_owner }} --password-stdin <<< ${{ secrets.GITHUB_TOKEN }}
-            cd /home/eherzog/conduit-fullstack
-            chmod +x docker-compose
+            cd /tmp/conduit-compose.yaml
             ./docker-compose down
             ./docker-compose pull
             ./docker-compose up -d

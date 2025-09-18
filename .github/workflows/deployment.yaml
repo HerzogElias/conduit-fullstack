@@ -35,7 +35,7 @@ jobs:
           port: ${{ secrets.SERVER_PORT }}
           script: |
             docker login ghcr.io -u ${{ github.repository_owner }} --password-stdin <<< ${{ secrets.GITHUB_TOKEN }}
-            cd /tmp/conduit-compose.yaml
+            cd ./tmp/conduit-compose.yaml
             ./docker-compose down
             ./docker-compose pull
             ./docker-compose up -d

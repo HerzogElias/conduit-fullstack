@@ -36,6 +36,8 @@ jobs:
           port: ${{ secrets.SERVER_PORT }}
           script: |
             mkdir -p /tmp/conduit/backend
+            mkdir -p /tmp/conduit/frontend
+
 
       # 4️⃣ Kopiere docker-compose.yaml ins tmp/conduit
       - name: Copy docker-compose.yaml to server

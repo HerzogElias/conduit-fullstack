@@ -10,9 +10,19 @@ jobs:
   docker:
     runs-on: ubuntu-latest
     steps:
-      # Checkout Repository
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - name: Checkout repository with submodules
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0  # Ensures submodules fetch correctly for all refs
+
+      - name: Generate env
+        run: |
+          echo "DJANGO_SUPERUSER_PASSWORD=${{ secrets.DJANGO_PW }}" > generated.env 
+          echo "DJANGO_SUPERUSER_EMAIL=${{ secrets.DJANGO_EMAIL }}" >> generated.env  
+          echo "DJANGO_SUPERUSER_USERNAME=${{ secrets.DJANGO_USER }}" >> generated.env  
+          echo "ALLOWED_HOSTS=${{ secrets.SERVER_IP }}" >> generated.env  
+          echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> generated.env  
 
       # 📦 docker-compose File auf Server kopieren
       - name: Copy docker-compose file to the Server
@@ -22,8 +32,8 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           port: ${{ secrets.SERVER_PORT }}
-          source: "./docker-compose.yaml"
-          target: "/tmp/conduit-compose.yaml"
+          source: "./docker-compose.yaml, generated.env"
+          target: "/tmp/conduit"
 
       # Remote Deployment via SSH + Docker Compose
       - name: Deploy to VM via SSH
@@ -35,10 +45,8 @@ jobs:
           port: ${{ secrets.SERVER_PORT }}
           script: |
             docker login ghcr.io -u ${{ github.repository_owner }} --password-stdin <<< ${{ secrets.GITHUB_TOKEN }}
-            cd backend
-              cp example.env .env
-            cd /tmp
-              docker-compose -f conduit-compose.yaml -down 
-              docker-compose -f conduit-compose.yaml pull
-              docker-compose -f conduit-compose.yaml up -d
+            cd /tmp/conduit
+            docker-compose -f docker-compose.yaml down 
+            docker-compose -f docker-compose.yaml pull
+            docker-compose -f docker-compose.yaml --env-file generated.env up -d
 

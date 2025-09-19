@@ -5,7 +5,7 @@ services:
       dockerfile: Dockerfile
     image: ghcr.io/herzogelias/conduit-backend:latest
     env_file:
-    - ./backend/.env
+    - ./backend/generated.env
     ports:
       - "8000:8000"
     volumes:

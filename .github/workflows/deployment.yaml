@@ -10,12 +10,14 @@ jobs:
   docker:
     runs-on: ubuntu-latest
     steps:
+      # 1️⃣ Checkout inkl. Submodules
       - name: Checkout repository with submodules
         uses: actions/checkout@v4
         with:
           submodules: recursive
-          fetch-depth: 0  # Ensures submodules fetch correctly for all refs
+          fetch-depth: 0
 
+      # 2️⃣ Generate env
       - name: Generate env
         run: |
           echo "DJANGO_SUPERUSER_PASSWORD=${{ secrets.DJANGO_PW }}" > generated.env 
@@ -24,18 +26,40 @@ jobs:
           echo "ALLOWED_HOSTS=${{ secrets.SERVER_IP }}" >> generated.env  
           echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> generated.env  
 
-      # 📦 docker-compose File auf Server kopieren
-      - name: Copy docker-compose file to the Server
+      # 3️⃣ Erstelle remote Ordnerstruktur
+      - name: Create remote folders
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          port: ${{ secrets.SERVER_PORT }}
+          script: |
+            mkdir -p /tmp/conduit/backend
+
+      # 4️⃣ Kopiere docker-compose.yaml ins tmp/conduit
+      - name: Copy docker-compose.yaml to server
         uses: appleboy/scp-action@v1.0.0
         with:
           host: ${{ secrets.SERVER_IP }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           port: ${{ secrets.SERVER_PORT }}
-          source: "./docker-compose.yaml, generated.env"
+          source: "./docker-compose.yaml"
           target: "/tmp/conduit"
 
-      # Remote Deployment via SSH + Docker Compose
+      # 5️⃣ Kopiere generated.env ins backend
+      - name: Copy generated.env to backend folder
+        uses: appleboy/scp-action@v1.0.0
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          port: ${{ secrets.SERVER_PORT }}
+          source: "./generated.env"
+          target: "/tmp/conduit/backend"
+
+      # 6️⃣ Deploy via SSH: Login, Build & Up
       - name: Deploy to VM via SSH
         uses: appleboy/ssh-action@v1
         with:
@@ -46,7 +70,5 @@ jobs:
           script: |
             docker login ghcr.io -u ${{ github.repository_owner }} --password-stdin <<< ${{ secrets.GITHUB_TOKEN }}
             cd /tmp/conduit
-            docker compose -f docker-compose.yaml down 
-            docker compose -f docker-compose.yaml pull
-            docker compose -f docker-compose.yaml --env-file generated.env up -d
-
+            docker compose -f docker-compose.yaml down
+            docker compose -f docker-compose.yaml --env-file backend/generated.env up -d --build

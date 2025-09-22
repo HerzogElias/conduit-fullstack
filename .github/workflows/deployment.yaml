@@ -87,4 +87,4 @@ jobs:
             docker login ghcr.io -u ${{ github.repository_owner }} --password-stdin <<< ${{ secrets.GITHUB_TOKEN }}
             cd /tmp/conduit
             docker compose -f docker-compose.yaml down
-            docker compose -f docker-compose.yaml --env-file backend/generated.env up -d --build
+            docker compose -f docker-compose.yaml --env-file backend/generated.env up -d

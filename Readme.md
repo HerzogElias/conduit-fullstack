@@ -73,8 +73,15 @@ For Use the CI/CD Pipeline on your own Cloned Repository,you need the following 
       SERVER_PORT
       SERVER_USER
       SERVER_SSH_KEY 
+      SECRET_KEY
+      production
+      apiurl
+      DJANGO_PW 
+      DJANGO_EMAIL
+      DJANGO_USER 
+      
 ```
-
+Example Secret Keys are from our Environment Files. 
 
 ### Description Fullstack Project 
 This is a Fullstack Web Application with Github Submodules. 

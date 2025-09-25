@@ -10,14 +10,12 @@ jobs:
   docker:
     runs-on: ubuntu-latest
     steps:
-      # 1️⃣ Checkout inkl. Submodules
       - name: Checkout repository with submodules
         uses: actions/checkout@v4
         with:
           submodules: recursive
           fetch-depth: 0
-
-      # 2️⃣ Generate env
+        
       - name: Generate env
         run: |
           echo "DJANGO_SUPERUSER_PASSWORD=${{ secrets.DJANGO_PW }}" > generated.env 
@@ -28,7 +26,6 @@ jobs:
           echo "production=${{ secrets.production }}" > frontend.env 
           echo "apiurl=${{ secrets.apiurl }}" >> frontend.env 
 
-      # 3️⃣ Erstelle remote Ordnerstruktur
       - name: Create remote folders
         uses: appleboy/ssh-action@v1
         with:
@@ -40,8 +37,6 @@ jobs:
             mkdir -p /tmp/conduit/backend
             mkdir -p /tmp/conduit/frontend
 
-
-      # 4️⃣ Kopiere docker-compose.yaml ins tmp/conduit
       - name: Copy docker-compose.yaml to server
         uses: appleboy/scp-action@v1.0.0
         with:
@@ -52,8 +47,6 @@ jobs:
           source: "./docker-compose.yaml"
           target: "/tmp/conduit"
 
-      
-      # 5️⃣ Kopiere generated.env ins backend
       - name: Copy generated.env to backend folder
         uses: appleboy/scp-action@v1.0.0
         with:
@@ -64,7 +57,6 @@ jobs:
           source: "./generated.env"
           target: "/tmp/conduit/backend"
 
-      # 5️⃣ Kopiere frontend.env ins frontend
       - name: Copy frontend.env to frontend folder
         uses: appleboy/scp-action@v1.0.0
         with:
@@ -75,7 +67,6 @@ jobs:
           source: "./frontend.env"
           target: "/tmp/conduit/frontend"
 
-      # 6️⃣ Deploy via SSH: Login, Build & Up
       - name: Deploy to VM via SSH
         uses: appleboy/ssh-action@v1
         with:
@@ -87,4 +78,4 @@ jobs:
             docker login ghcr.io -u ${{ github.repository_owner }} --password-stdin <<< ${{ secrets.GITHUB_TOKEN }}
             cd /tmp/conduit
             docker compose -f docker-compose.yaml down
-            docker compose -f docker-compose.yaml --env-file backend/generated.env up -d
+            docker compose -f docker-compose.yaml --env-file backend/generated.env --no-cache up -d 

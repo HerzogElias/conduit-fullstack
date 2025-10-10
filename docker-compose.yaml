@@ -3,7 +3,7 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    image: ghcr.io/herzogelias/conduit-backend:latest
+    image: ghcr.io/herzogelias/conduit-backend
     env_file:
     - ./backend/generated.env
     ports:
@@ -16,7 +16,7 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    image: ghcr.io/herzogelias/conduit-frontend:latest
+    image: ghcr.io/herzogelias/conduit-frontend
     ports:
       - "8282:80"
     volumes:

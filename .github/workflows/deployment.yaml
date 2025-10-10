@@ -10,10 +10,9 @@ jobs:
   docker:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository with submodules
+      - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          submodules: recursive
           fetch-depth: 0
         
       - name: Generate env
@@ -77,5 +76,7 @@ jobs:
           script: |
             docker login ghcr.io -u ${{ github.repository_owner }} --password-stdin <<< ${{ secrets.GITHUB_TOKEN }}
             cd /tmp/conduit
+            docker pull ghcr.io/herzogelias/conduit-backend
+            docker pull ghcr.io/herzogelias/conduit-frontend
             docker compose -f docker-compose.yaml down
             docker compose -f docker-compose.yaml --env-file backend/generated.env --no-cache up -d 

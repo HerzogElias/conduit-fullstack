@@ -1,0 +1,82 @@
+name: ci
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+        
+      - name: Generate env
+        run: |
+          echo "DJANGO_SUPERUSER_PASSWORD=${{ secrets.DJANGO_PW }}" > generated.env 
+          echo "DJANGO_SUPERUSER_EMAIL=${{ secrets.DJANGO_EMAIL }}" >> generated.env  
+          echo "DJANGO_SUPERUSER_USERNAME=${{ secrets.DJANGO_USER }}" >> generated.env  
+          echo "ALLOWED_HOSTS=${{ secrets.SERVER_IP }}" >> generated.env  
+          echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> generated.env  
+          echo "production=${{ secrets.production }}" > frontend.env 
+          echo "apiurl=${{ secrets.apiurl }}" >> frontend.env 
+
+      - name: Create remote folders
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          port: ${{ secrets.SERVER_PORT }}
+          script: |
+            mkdir -p /tmp/conduit/backend
+            mkdir -p /tmp/conduit/frontend
+
+      - name: Copy docker-compose.yaml to server
+        uses: appleboy/scp-action@v1.0.0
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          port: ${{ secrets.SERVER_PORT }}
+          source: "./docker-compose.yaml"
+          target: "/tmp/conduit"
+
+      - name: Copy generated.env to backend folder
+        uses: appleboy/scp-action@v1.0.0
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          port: ${{ secrets.SERVER_PORT }}
+          source: "./generated.env"
+          target: "/tmp/conduit/backend"
+
+      - name: Copy frontend.env to frontend folder
+        uses: appleboy/scp-action@v1.0.0
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          port: ${{ secrets.SERVER_PORT }}
+          source: "./frontend.env"
+          target: "/tmp/conduit/frontend"
+
+      - name: Deploy to VM via SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          port: ${{ secrets.SERVER_PORT }}
+          script: |
+            docker login ghcr.io -u ${{ github.repository_owner }} --password-stdin <<< ${{ secrets.GITHUB_TOKEN }}
+            cd /tmp/conduit
+            docker pull ghcr.io/herzogelias/conduit-backend
+            docker pull ghcr.io/herzogelias/conduit-frontend
+            docker compose -f docker-compose.yaml down
+            docker compose -f docker-compose.yaml --env-file backend/generated.env up -d 

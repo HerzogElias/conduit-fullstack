@@ -3,8 +3,9 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
+    image: ghcr.io/herzogelias/conduit-backend
     env_file:
-    - ./backend/.env
+    - ./backend/generated.env
     ports:
       - "8000:8000"
     volumes:
@@ -15,16 +16,15 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+    image: ghcr.io/herzogelias/conduit-frontend
     ports:
       - "8282:80"
     volumes:
       - frontend-code:/app
-      - frontend-node-modules:/app/node_modules
     restart: always
 
 volumes:
   frontend-code:
-  frontend-node-modules:
   backend-code:
   static-data:
   

@@ -8,6 +8,7 @@
    - [Description Fullstack Project](#Description-Fullstack-Project)
    - [Stop Docker Container](#Stop-Docker-Container)
    - [Delete Docker Container](#Delete-Docker-Container)
+   - [CI/CD Pipeline](#cicd-pipeline)
 
 ## Introduction
 This is a Readme Description of our Conduit Project.The Conduit is a Clone of <a href=https://medium.com/>Medium.com<a>
@@ -55,6 +56,33 @@ docker compose up --build
 ```
 
 ## Usage 
+### CI/CD Pipeline
+This Project are using a CI and CD Pipeline with Github Actions. 
+
+Trigger: 
+- Automaticly Run on every Push on Main/Default Branch. 
+- Manuell Run on Main/Default Brnach aviable. 
+
+Description: 
+This Pipeline loggin to your V-Server. After login, thie Pipeline run a docker compose build. 
+
+Secret Keys: 
+For Use the CI/CD Pipeline on your own Cloned Repository,you need the following Secret Keys on your Github Repo Settings: 
+```bash
+      SERVER_IP
+      SERVER_PORT
+      SERVER_USER
+      SERVER_SSH_KEY 
+      SECRET_KEY
+      production
+      apiurl
+      DJANGO_PW 
+      DJANGO_EMAIL
+      DJANGO_USER 
+      
+```
+Example Secret Keys are from our Environment Files. 
+
 ### Description Fullstack Project 
 This is a Fullstack Web Application with Github Submodules. 
 Here you can see, the Root Github Repository. 
